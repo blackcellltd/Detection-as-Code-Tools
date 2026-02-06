@@ -1,0 +1,74 @@
+[metadata]
+creation_date = "2024/09/30"
+maturity = "experimental"
+sigma="proc_creation_win_bitsadmin_download.yml"
+
+[splunk]
+query = '''
+| tstats `security_content_summariesonly` count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where 
+Processes.process_path="*\\bitsadmin.exe" OR Processes.original_file_name="bitsadmin.exe" Processes.process="* /transfer *" OR (Processes.process IN ("* /create *", "* /addfile *") Processes.process="*http*")
+by Processes.process_name Processes.process_path Processes.process Processes.parent_process_exec Processes.parent_process Processes.dest Processes.user 
+| `drop_dm_object_name(Processes)` | `security_content_ctime(firstTime)` | `security_content_ctime(lastTime)`
+'''
+impact = "medium"
+urgency = "medium"
+
+[rule]
+author = ["lazarg","Michael Haag","FPT.EagleEye"]
+description = "Detects usage of bitsadmin downloading a file."
+from = "now-6m"
+name = "File Download Via Bitsadmin"
+risk_score = 47
+severity = "medium"
+index = ["logs-*"]
+type = "eql"
+rule_id = "ecc660f7-5a89-4de3-829f-ef8819c713c8"
+tags = [
+    "BC-DaC"
+]
+language= "eql"
+query = '''
+process where host.os.type == "windows" and event.type == "start" and (process.executable:"*\\bitsadmin.exe" or process.pe.original_file_name:"bitsadmin.exe") and (process.command_line:"* /transfer *" or ((process.command_line like~ ("* /create *", "* /addfile *")) and process.command_line:"*http*"))
+'''
+false_positives = ["Some legitimate apps use this, but limited."]
+note = """
+- Determine which processes, parent processes, and files are involved with the alert.
+- Examine the commands run on the device at the time of the alert, and look for any that indicate a file download via Bitsadmin.
+- If possible, investigate the downloaded file and its source.
+- If a suspicious circumstance is detected based on the above, and its source is not a known, valid activity, the alert must be escalated.
+"""
+
+references = ["https://blog.netspi.com/15-ways-to-download-a-file/","https://isc.sans.edu/diary/22264","https://lolbas-project.github.io/lolbas/Binaries/Bitsadmin/"]
+
+[rule.investigation_fields]
+field_names=["process.command_line","process.executable","process.pe.product","process.pe.original_file_name","process.pe.description","host.hostname","user.name"]
+
+[rule.alert_suppression]
+group_by = ["host.name"]
+missing_fields_strategy = "doNotSuppress"
+
+[[rule.threat]]
+framework = "MITRE ATT&CK"
+
+[rule.threat.tactic]
+id = "TA0002"
+name = "Execution"
+reference = "https://attack.mitre.org/tactics/TA0002/"
+
+[[rule.threat.technique]]
+id = "T1072"
+name = "Software Deployment Tools"
+reference = "https://attack.mitre.org/techniques/T1072/"
+
+[[rule.threat]]
+framework = "MITRE ATT&CK"
+
+[rule.threat.tactic]
+id = "TA0008"
+name = "Lateral Movement"
+reference = "https://attack.mitre.org/tactics/TA0008/"
+
+[[rule.threat.technique]]
+id = "T1072"
+name = "Software Deployment Tools"
+reference = "https://attack.mitre.org/techniques/T1072/"

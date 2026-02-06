@@ -1,0 +1,60 @@
+[metadata]
+creation_date = "2024/09/30"
+maturity = "experimental"
+sigma="proc_creation_win_hktl_certify.yml"
+
+[splunk]
+query = '''
+| tstats `security_content_summariesonly` count min(_time) as firstTime max(_time) as lastTime from datamodel=Endpoint.Processes where 
+Processes.process_path="*\\Certify.exe" OR Processes.original_file_name="Certify.exe" OR Processes.Description="*Certify*" OR (Processes.process IN ("*.exe cas *", "*.exe find *", "*.exe pkiobjects *", "*.exe request *", "*.exe download *") Processes.process IN ("* /vulnerable*", "* /template:*", "* /altname:*", "* /domain:*", "* /path:*", "* /ca:*"))
+by Processes.process_name Processes.process_path Processes.process Processes.parent_process_exec Processes.parent_process Processes.dest Processes.user 
+| `drop_dm_object_name(Processes)` | `security_content_ctime(firstTime)` | `security_content_ctime(lastTime)`
+'''
+impact = "medium"
+urgency = "medium"
+
+[rule]
+author = ["lazarg","pH-T"]
+description = "Detects Certify a tool for Active Directory certificate abuse based on PE metadata characteristics and common command line arguments."
+from = "now-6m"
+name = "Certify Execution"
+risk_score = 47
+severity = "medium"
+index = ["logs-*"]
+type = "eql"
+rule_id = "2e841727-c994-4752-9b3a-c0a910e8b3c5"
+tags = [
+    "BC-DaC"
+]
+language= "eql"
+query = '''
+process where host.os.type == "windows" and event.type == "start" and ((process.executable:"*\\Certify.exe" or process.pe.original_file_name:"Certify.exe" or process.pe.description:"*Certify*") or ((process.command_line like~ ("*.exe cas *", "*.exe find *", "*.exe pkiobjects *", "*.exe request *", "*.exe download *")) and (process.command_line like~ ("* /vulnerable*", "* /template:*", "* /altname:*", "* /domain:*", "* /path:*", "* /ca:*"))))
+'''
+false_positives = ["Unknown"]
+note = """
+- Determine which processes, parent processes, and files are involved with the alert.
+- Examine the commands run on the device at the time of the alert, looking for any that show suspicious Certify tool execution.
+- If a suspicious circumstance is detected based on the above, and its source is not a known, valid activity, the alert must be escalated.
+"""
+
+references = ["https://github.com/GhostPack/Certify"]
+
+[rule.investigation_fields]
+field_names=["process.command_line","process.executable","process.pe.original_file_name","process.pe.description","host.hostname","user.name"]
+
+[rule.alert_suppression]
+group_by = ["host.name"]
+missing_fields_strategy = "doNotSuppress"
+
+[[rule.threat]]
+framework = "MITRE ATT&CK"
+
+[rule.threat.tactic]
+id = "TA0006"
+name = "Credential Access"
+reference = "https://attack.mitre.org/tactics/TA0006/"
+
+[[rule.threat.technique]]
+id = "T1649"
+name = "Steal or Forge Authentication Certificates"
+reference = "https://attack.mitre.org/techniques/T1649/"
