@@ -118,7 +118,7 @@ A standard detection engineering workflow using this repository looks like:
 2. **Create or update the corresponding TOML metadata/config** in `rules/`.
 3. **Run validation** using `validator.py` to ensure the rule is structurally correct and references are valid.
 4. **Commit changes** to version control (with review/approval as needed).
-5. **CI/CD pipeline runs validation** and optionally packages/translates rules for target platforms.
+5. **CI/CD pipeline runs validation** and excludes invalid or broken rules.
 6. **Deployment scripts** (`elasticuploader.py`, `splunkuploader.py`) push updates to the SIEM(s).
 
 ---
