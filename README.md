@@ -1,6 +1,6 @@
 # Detection-as-Code Tools
 
-Detection-as-Code Tools is a **DaC** repository designed to standardize the creation, validation, and deployment of detection rules across multiple security platforms. It provides a structured, automation-ready framework that enables security engineering teams to manage detections as version-controlled code artifacts—improving consistency, traceability, reviewability, and operational scalability.
+Detection-as-Code Tools is a **DaC** repository designed to standardize the creation, validation, and deployment of detection rules across multiple security platforms. It provides a structured, automation-ready framework that enables security engineering teams to manage detections as version-controlled code artifacts, improving consistency, traceability, reviewability, and operational scalability.
 
 The repository supports rule definition using **TOML for metadata and configuration**, **Sigma for detection logic**, and **Python-based tooling** for validation and SIEM deployment.
 
@@ -12,21 +12,23 @@ By adopting this approach, teams can move from ad-hoc, platform-specific rule ma
 
 This repository is built around the following principles:
 
-- **Detection-as-Code** – Detections are treated as code artifacts (versioned, reviewed, tested, and deployed like software).
-- **Platform abstraction** – Sigma rules provide vendor-agnostic detection logic that can be converted into SIEM-specific query languages.
-- **Automation-ready** – Designed to integrate into CI/CD pipelines for validation, packaging, and deployment.
+- **Detection-as-Code**: Detections are treated as code artifacts (versioned, reviewed, tested, and deployed like software).
+- **Platform abstraction**: Sigma rules provide vendor-agnostic detection logic that can be converted into SIEM-specific query languages.
+- **Automation-ready**: Designed to integrate into CI/CD pipelines for validation, packaging, and deployment.
 
 ### Detection-as-Code
+
 All detection logic and metadata are stored as code. This allows teams to:
 
-- Use **version control** for detections
+- Use version control for detections
 - Track changes over time (diffs, history, authorship)
 - Enforce peer reviews and approvals
 - Standardize structure and required fields
 - Integrate detections into CI/CD pipelines
 
 ### Platform Abstraction (Sigma)
-Detection logic is written in **Sigma**, an open, platform-agnostic detection rule format. This enables:
+
+Detection logic is written in Sigma, an open, platform-agnostic detection rule format. This enables:
 
 - A single source of truth for detection logic
 - Portability across SIEM platforms
@@ -127,12 +129,12 @@ A standard detection engineering workflow using this repository looks like:
 
 Using this repository provides several operational advantages:
 
-- **Consistency at scale** — standardized rule structure and metadata requirements
-- **Auditability** — full history of changes, reviews, and ownership via git
-- **Portability** — Sigma logic enables vendor-agnostic detections
-- **Lower operational risk** — validation prevents broken/malformed rules from deploying
-- **Faster deployments** — automation reduces manual work and turnaround time
-- **Better collaboration** — rules can be reviewed like code and improved iteratively
+- **Consistency at scale**: standardized rule structure and metadata requirements
+- **Auditability**: full history of changes, reviews, and ownership via git
+- **Portability**: Sigma logic enables vendor-agnostic detections
+- **Lower operational risk**: validation prevents broken/malformed rules from deploying
+- **Faster deployments**: automation reduces manual work and turnaround time
+- **Better collaboration**: rules can be reviewed like code and improved iteratively
 
 ---
 
